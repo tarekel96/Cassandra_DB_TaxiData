@@ -1,0 +1,54 @@
+--------------------NOTEBOOK_taxi_dataset--------------------
+--------------------CELL_CQL_1--------------------
+CREATE KEYSPACE TaxiTrajectory WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 3};
+--------------------CELL_CQL_2--------------------
+CREATE TABLE TaxiTrajectory.TaxiTrip (
+    TRIP_ID VARCHAR,
+    CALL_TYPE VARCHAR,
+    ORIGIN_CALL INT,
+    ORIGIN_STAND INT,
+    TAXI_ID INT,
+    TIMESTAMP TIMESTAMP,
+    DAY_TYPE VARCHAR,
+    MISSING_DATA BOOLEAN,
+    PRIMARY KEY ((CALL_TYPE, ORIGIN_STAND), TRIP_ID)
+);
+--------------------CELL_CQL_3--------------------
+// Copy Command - run in cqlsh terminal
+
+// COPY TaxiTrajectory.TaxiTrip(TRIP_ID,CALL_TYPE,ORIGIN_CALL,ORIGIN_STAND,TAXI_ID,TIMESTAMP,DAY_TYPE,MISSING_DATA) FROM '/tmp/train_8.csv' WITH DELIMITER=',' AND HEADER=TRUE;
+--------------------CELL_CQL_4--------------------
+SELECT * FROM TaxiTrajectory.TaxiTrip LIMIT 4;
+--------------------CELL_CQL_5--------------------
+/*
+ To write a CQL query to count how many records have ORIGIN_STAND=15,
+ should first create an index on ORIGIN_STAND for the query to run faster.
+*/
+CREATE INDEX IDX_ORIGIN_STAND ON TaxiTrajectory.TaxiTrip(ORIGIN_STAND);
+--------------------CELL_CQL_6--------------------
+DESCRIBE TABLE TaxiTrajectory.TaxiTrip;
+--------------------CELL_CQL_7--------------------
+SELECT count(*)
+FROM TaxiTrajectory.TaxiTrip
+WHERE ORIGIN_STAND = 15;
+--------------------CELL_CQL_8--------------------
+/*
+Write a CQL query to return the timestamp of tripid='1386499486620000068'
+*/
+// first create an index
+CREATE INDEX IDX_TRIP_ID ON TaxiTrajectory.TaxiTrip(TRIP_ID);
+--------------------CELL_CQL_9--------------------
+SELECT TIMESTAMP
+FROM TaxiTrajectory.TaxiTrip
+WHERE TRIP_ID = '1386499486620000068';
+--------------------CELL_CQL_10--------------------
+/*
+Write CQL to get all trip ids with origin stand 15 and call type B.
+*/
+// first create an index
+CREATE INDEX IDX_CALL_TYPE ON TaxiTrajectory.TaxiTrip(CALL_TYPE);
+--------------------CELL_CQL_11--------------------
+SELECT TRIP_ID
+FROM TaxiTrajectory.TaxiTrip
+WHERE ORIGIN_STAND = 15
+AND CALL_TYPE = 'B';
